@@ -1,0 +1,58 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:id="@+id/imageViewIcon"
+    />
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageViewIcon"
+        android:paddingStart="5dp"
+        android:id="@+id/textViewDisplayLocation"
+        />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/textViewDisplayLocation"
+        android:gravity="center"
+        android:id="@+id/textViewDisplayArrived"
+        />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/textViewDisplayArrived"
+        android:gravity="center"
+        android:id="@+id/textViewDisplayDeparted"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageViewIcon"
+        android:layout_below="@id/textViewDisplayLocation"
+        android:paddingStart="5dp"
+        android:textColor="#BBBBBB"
+        android:id="@+id/textViewDisplayComments"
+        />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/textViewDisplayDeparted"
+        android:gravity="center"
+        android:id="@+id/textViewDisplayFastTrain"
+        />
+
+
+
+</RelativeLayout>
