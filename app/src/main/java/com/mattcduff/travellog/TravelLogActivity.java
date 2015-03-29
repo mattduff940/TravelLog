@@ -14,15 +14,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -47,12 +47,11 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_log);
 
-        final RadioButton rbDeparted= (RadioButton) findViewById(R.id.radioButtonDeparted);
-        final RadioButton rbArrived= (RadioButton) findViewById(R.id.radioButtonArrived);
-        final RadioButton rbToWork= (RadioButton) findViewById(R.id.radioButtonToWork);
+        final ToggleButton tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
+        final ToggleButton tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
 
-        rbDeparted.setChecked(true);
-        rbToWork.setChecked(true);
+        tbWorkHome.setChecked(true);
+        tbArrDep.setChecked(true);
 
         sdfMyDateFormat=new SimpleDateFormat("dd MMM yy");
         datDate = Calendar.getInstance().getTime();
@@ -64,12 +63,12 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         chkFT = (CheckBox)findViewById(R.id.checkBoxFastTrain);
         chkFT.setEnabled(false);
 
-        String[] strLocationNames=new String[]{"Home", "Ruislip", "H-o-t-H",
+        String[] strLocationNames=new String[]{"Home", "Ruislip", "Ruislip Manor", "H-o-t-H",
                 "Finchley Road", "Westminster", "Work"};
 
         final Spinner spnLocationNames= (Spinner) findViewById(R.id.spnLocationNames);
 
-        ArrayAdapter<String> adpLocationsNames=new ArrayAdapter<String>(this, R.layout.spinner_item,strLocationNames);
+        ArrayAdapter<String> adpLocationsNames=new ArrayAdapter<>(this, R.layout.spinner_item,strLocationNames);
         spnLocationNames.setAdapter(adpLocationsNames);
         spnLocationNames.setOnItemSelectedListener(this);
 
@@ -77,6 +76,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         openDB();
         populateListView();
+        logEntryItemLongClick();
 
         Button btnCapture = (Button)findViewById(R.id.btnCaptureTime);
         btnCapture.hasFocus();
@@ -104,7 +104,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                         String time=edtTime.getText().toString();
                         String strFT;
 
-                        if (rbToWork.isChecked()){
+                        if (tbWorkHome.isChecked()) {
                             strDirection="To Work";
                         } else {
                             strDirection="To Home";
@@ -112,16 +112,17 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
                         switch (strLocation){
                             case "Home":
-                                if (rbToWork.isChecked()) {
-                                    myDb.addRowDeparted(strDate,strLocation,"To Work",time,"",strComments);
+                                if (tbWorkHome.isChecked()) {
+                                    myDb.addRowDeparted(strDate,strLocation,strDirection,time,"",strComments);
                                     break;
                                 } else {
-                                    rowID = myDb.rowExists(strDate, strLocation, "To Work");
-                                    myDb.updateRowArrived(rowID,time,strComments);
+                                    //rowID = myDb.rowExists(strDate, strLocation, "To Work");
+                                    //myDb.updateRowArrived(rowID,time,strComments);
+                                    myDb.addRowArrived(strDate, strLocation, "To Home", time, strComments);
                                     break;
                                 }
                             case "Work":
-                                if (rbToWork.isChecked()) {
+                                if (tbWorkHome.isChecked()) {
                                     myDb.addRowArrived(strDate,strLocation,"To Work",time,strComments);
                                     break;
                                 } else {
@@ -131,10 +132,10 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                 }
                             default:
                                 rowID = myDb.rowExists(strDate, strLocation, strDirection);
-                                if (rowID<0 && rbArrived.isChecked()) {
+                                if (rowID<0 && (!tbArrDep.isChecked())) {
                                     myDb.addRowArrived(strDate,strLocation,strDirection,time,strComments);
                                 }
-                                if (rowID<0 && rbDeparted.isChecked()){
+                                if (rowID<0 && tbArrDep.isChecked()){
                                     if (chkFT.isChecked()) {
                                         strFT="Yes";
                                     } else {
@@ -142,10 +143,10 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                     }
                                     myDb.addRowDeparted(strDate,strLocation,strDirection,time,strFT,strComments);
                                 }
-                                if (rowID>=0 && rbArrived.isChecked()){
+                                if (rowID>=0 && (!tbArrDep.isChecked())){
                                     myDb.updateRowArrived(rowID,time,strComments);
                                 }
-                                if (rowID>=0 && rbDeparted.isChecked()){
+                                if (rowID>=0 && tbArrDep.isChecked()){
                                     if (chkFT.isChecked()) {
                                         strFT="Yes";
                                     } else {
@@ -159,18 +160,16 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                 }
         );
 
-        RadioGroup rgWorkHome = (RadioGroup) findViewById(R.id.radioGroupWorkHome);
-        rgWorkHome.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        tbWorkHome.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 fastTrainCheckBoxStatus();
             }
         });
 
-        RadioGroup rgArrDep = (RadioGroup) findViewById(R.id.radioGroupArrDep);
-        rgArrDep.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        tbArrDep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 fastTrainCheckBoxStatus();
             }
         });
@@ -250,28 +249,31 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
     private void fastTrainCheckBoxStatus() {
 
-        RadioButton rbToWork = (RadioButton) findViewById(R.id.radioButtonToWork);
-        RadioButton rbToHome = (RadioButton) findViewById(R.id.radioButtonToHome);
-        RadioButton rbDeparted = (RadioButton) findViewById(R.id.radioButtonDeparted);
+        ToggleButton tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
+        ToggleButton tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
 
         switch (strLocation) {
             case "Home":
             case "Westminster":
             case "Work":
+                chkFT.setChecked(false);
                 chkFT.setEnabled(false);
                 break;
             case "Ruislip":
+            case "Ruislip Manor":
             case "H-o-t-H":
-                if (rbToWork.isChecked() && rbDeparted.isChecked()) {
+                if (tbWorkHome.isChecked() && tbArrDep.isChecked()) {
                     chkFT.setEnabled(true);
                 } else {
+                    chkFT.setChecked(false);
                     chkFT.setEnabled(false);
                 }
                 break;
             case "Finchley Road":
-                if (rbToHome.isChecked() && rbDeparted.isChecked()) {
+                if ((!tbWorkHome.isChecked()) && tbArrDep.isChecked()) {
                     chkFT.setEnabled(true);
                 } else {
+                    chkFT.setChecked(false);
                     chkFT.setEnabled(false);
                 }
                 break;
@@ -295,6 +297,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         public void bindView (View lvDisplayInfo, Context context, Cursor csrTodaysEntries) {
 
+            int dbidcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ROWID);
+            long dbid = csrTodaysEntries.getLong(dbidcol);
             int locationcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_LOCATION);
             String location = csrTodaysEntries.getString(locationcol);
             int arrivedncol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ARRIVED);
@@ -307,6 +311,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             String fasttrain = csrTodaysEntries.getString(fasttraincol);
 
             ImageView ivIcon = (ImageView) lvDisplayInfo.findViewById(R.id.imageViewIcon);
+            TextView tvDbID = (TextView) lvDisplayInfo.findViewById(R.id.textViewDbID);
             TextView tvLocation = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayLocation);
             TextView tvArrived = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayArrived);
             TextView tvDeparted = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayDeparted);
@@ -322,8 +327,10 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                     break;
                 default:
                     ivIcon.setImageResource(R.drawable.ic_underground);
-            };
+            }
 
+
+            tvDbID.setText(String.valueOf(dbid));
             tvLocation.setText(location);
             tvArrived.setText(arrived);
             tvDeparted.setText(departed);
@@ -333,6 +340,19 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
 
 
+    }
+
+    private void logEntryItemLongClick() {
+        ListView lvDisplayInfo = (ListView) findViewById(R.id.listViewDisplayInfo);
+        lvDisplayInfo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                myDb.deleteRow(id);
+                populateListView();
+                return false;
+            }
+        });
     }
 
 }

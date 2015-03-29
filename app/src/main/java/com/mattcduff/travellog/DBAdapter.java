@@ -181,12 +181,12 @@ public class DBAdapter {
     */
 
     // Delete a row from the database, by rowId (primary key)
-    public boolean deleteRow(long rowId) {
-        String where = COLUMN_ROWID + "=" + rowId;
+    public boolean deleteRow(long rowID) {
+        String where = COLUMN_ROWID + "=" + rowID;
         return db.delete(DATABASE_TABLE, where, null) != 0;
     }
 
-    public void deleteAll() {
+    /*public void deleteAll() {
         Cursor c = getAllRows();
         long rowId = c.getColumnIndexOrThrow(COLUMN_ROWID);
         if (c.moveToFirst()) {
@@ -196,7 +196,7 @@ public class DBAdapter {
         }
         c.close();
     }
-
+    */
 
 
 
