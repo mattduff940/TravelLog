@@ -139,7 +139,11 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                     if (chkFT.isChecked()) {
                                         strFT="Yes";
                                     } else {
-                                        strFT="No";
+                                        if (chkFT.isEnabled()) {
+                                            strFT="No";
+                                        { else {
+                                            strFT="";
+                                        }
                                     }
                                     myDb.addRowDeparted(strDate,strLocation,strDirection,time,strFT,strComments);
                                 }
@@ -150,7 +154,11 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                     if (chkFT.isChecked()) {
                                         strFT="Yes";
                                     } else {
-                                        strFT="No";
+                                        if (chkFT.isEnabled()) {
+                                            strFT="No";
+                                        { else {
+                                            strFT="";
+                                        }
                                     }
                                     myDb.updateRowDeparted(rowID, time, strFT, strComments);
                                 }
@@ -253,12 +261,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         ToggleButton tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
 
         switch (strLocation) {
-            case "Home":
-            case "Westminster":
-            case "Work":
-                chkFT.setChecked(false);
-                chkFT.setEnabled(false);
-                break;
             case "Ruislip":
             case "Ruislip Manor":
             case "H-o-t-H":
@@ -277,7 +279,9 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                     chkFT.setEnabled(false);
                 }
                 break;
-
+            default:
+                chkFT.setChecked(false);
+                chkFT.setEnabled(false);
         }
     }
 
@@ -297,8 +301,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         public void bindView (View lvDisplayInfo, Context context, Cursor csrTodaysEntries) {
 
-            int dbidcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ROWID);
-            long dbid = csrTodaysEntries.getLong(dbidcol);
+            /*int dbidcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ROWID);
+            long dbid = csrTodaysEntries.getLong(dbidcol);*/
             int locationcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_LOCATION);
             String location = csrTodaysEntries.getString(locationcol);
             int arrivedncol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ARRIVED);
@@ -311,7 +315,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             String fasttrain = csrTodaysEntries.getString(fasttraincol);
 
             ImageView ivIcon = (ImageView) lvDisplayInfo.findViewById(R.id.imageViewIcon);
-            TextView tvDbID = (TextView) lvDisplayInfo.findViewById(R.id.textViewDbID);
+            //TextView tvDbID = (TextView) lvDisplayInfo.findViewById(R.id.textViewDbID);
             TextView tvLocation = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayLocation);
             TextView tvArrived = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayArrived);
             TextView tvDeparted = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayDeparted);
@@ -330,7 +334,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             }
 
 
-            tvDbID.setText(String.valueOf(dbid));
+            //tvDbID.setText(String.valueOf(dbid));
             tvLocation.setText(location);
             tvArrived.setText(arrived);
             tvDeparted.setText(departed);
