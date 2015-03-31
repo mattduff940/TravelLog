@@ -53,22 +53,24 @@ tools:context=".TravelLogActivity">
         />
 
     <ToggleButton
-        android:layout_width="100dp"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textOn="@string/towork"
         android:textOff="@string/tohome"
+        android:textSize="20dp"
         android:layout_row="1"
         android:layout_column="0"
         android:layout_columnSpan="2"
         android:id="@+id/toggleButtonWorkHome" />
 
     <ToggleButton
-        android:layout_width="100dp"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textOn="@string/departed"
         android:textOff="@string/arrived"
+        android:textSize="20dp"
         android:layout_row="1"
         android:layout_column="2"
         android:layout_columnSpan="2"

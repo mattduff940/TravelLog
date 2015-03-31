@@ -135,34 +135,34 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                 if (rowID<0 && (!tbArrDep.isChecked())) {
                                     myDb.addRowArrived(strDate,strLocation,strDirection,time,strComments);
                                 }
-                                if (rowID<0 && tbArrDep.isChecked()){
+                                if (rowID<0 && tbArrDep.isChecked()) {
                                     if (chkFT.isChecked()) {
-                                        strFT="Yes";
+                                        strFT = "Yes";
                                     } else {
                                         if (chkFT.isEnabled()) {
-                                            strFT="No";
-                                        { else {
-                                            strFT="";
+                                            strFT = "No";
+                                        } else {
+                                            strFT = "";
                                         }
+                                        myDb.addRowDeparted(strDate, strLocation, strDirection, time, strFT, strComments);
                                     }
-                                    myDb.addRowDeparted(strDate,strLocation,strDirection,time,strFT,strComments);
                                 }
-                                if (rowID>=0 && (!tbArrDep.isChecked())){
-                                    myDb.updateRowArrived(rowID,time,strComments);
+                                if (rowID >= 0 && (!tbArrDep.isChecked())) {
+                                    myDb.updateRowArrived(rowID, time, strComments);
                                 }
-                                if (rowID>=0 && tbArrDep.isChecked()){
+                                if (rowID >= 0 && tbArrDep.isChecked()) {
                                     if (chkFT.isChecked()) {
-                                        strFT="Yes";
+                                        strFT = "Yes";
                                     } else {
                                         if (chkFT.isEnabled()) {
-                                            strFT="No";
-                                        { else {
-                                            strFT="";
+                                            strFT = "No";
+                                        } else {
+                                            strFT = "";
                                         }
                                     }
                                     myDb.updateRowDeparted(rowID, time, strFT, strComments);
                                 }
-                        }
+                            }
                         populateListView();
                     }
                 }
