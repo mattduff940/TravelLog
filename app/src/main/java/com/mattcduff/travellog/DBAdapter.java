@@ -112,8 +112,8 @@ public class DBAdapter {
 
     }
 
-    //Just if the row already exists and if it does then return the row ID
-    public long rowExists(String date, String location, String direction){
+    //Check if the row already exists and if it does then return the row ID
+    public long rowExists(String date, String location, String direction) {
 
         long rowID;
         String selection = COLUMN_DATE + "= ? AND " + COLUMN_LOCATION + " = ? AND " + COLUMN_DIRECTION + " = ? ";
@@ -123,117 +123,66 @@ public class DBAdapter {
         if (c.getCount()>0) {
             rowID = c.getLong(COL_ROWID);
             return rowID;
-
         } else {
             c.close();
             return -1;
         }
-
-
     }
 
+    //Update a row with the Arrived time and any comments
     public boolean updateRowArrived(long rowID, String time, String comments) {
 
-        String selection = COLUMN_ROWID + "= ?";
-        String [] selectionArgs = { String.valueOf(rowID) };
+        String where = COLUMN_ROWID + "=" + rowID;
         ContentValues newValues = new ContentValues();
         newValues.put(COLUMN_ARRIVED, time);
         newValues.put(COLUMN_COMMENTS, comments);
 
-        return db.update(DATABASE_TABLE, newValues, selection, selectionArgs) !=0;
-
+        return db.update(DATABASE_TABLE, newValues, where, null) !=0;
     }
 
+    //Update a row with the Departed time, whether a fast train was used and any comments
     public boolean updateRowDeparted(long rowID, String time, String fasttrain, String comments) {
 
-        String selection = COLUMN_ROWID + "= ?";
-        String [] selectionArgs = { String.valueOf(rowID) };
+        String where = COLUMN_ROWID + "=" + rowID;
         ContentValues newValues = new ContentValues();
         newValues.put(COLUMN_DEPARTED, time);
         newValues.put(COLUMN_FASTTRAIN, fasttrain);
         newValues.put(COLUMN_COMMENTS, comments);
 
-        return db.update(DATABASE_TABLE, newValues, selection, selectionArgs) !=0;
+        return db.update(DATABASE_TABLE, newValues, where, null) !=0;
+    }
+    
+    //Update a row with all the fields that could have been edited
+    public boolean updateEditedRow(long rowID, String location, String direction, String arrTime, String depTime, String fasttrain, String comments) {
 
+        String where = COLUMN_ROWID + "=" + rowID;
+        ContentValues newValues = new ContentValues();
+        newValues.put(COLUMN_LOCATION, location);
+        newValues.put(COLUMN_DIRECTION, direction);
+        newValues.put(COLUMN_ARRIVED), arrTime
+        newValues.put(COLUMN_DEPARTED, depTime);
+        newValues.put(COLUMN_FASTTRAIN, fasttrain);
+        newValues.put(COLUMN_COMMENTS, comments);
+
+        return db.update(DATABASE_TABLE, newValues, where, null) !=0;
     }
 
     // Return all today's data in the database.
     public Cursor getAllTodaysRows(String date) {
-        String selection = COLUMN_DATE + "= ?";
-        String [] selectionArgs = { date };
+        String where = COLUMN_DATE + "=" + date;
         String sortOrder = COLUMN_ROWID + " DESC";
-        Cursor c = 	db.query(DATABASE_TABLE, ALL_COLUMNS, selection, selectionArgs, null, null, sortOrder, null);
-        //Cursor c = 	db.query(DATABASE_TABLE, ALL_COLUMNS, selection, selectionArgs, null, null, null, null);
-        if (c != null) {
+        Cursor c = 	db.query(DATABASE_TABLE, ALL_COLUMNS, where, null, null, null, sortOrder, null);
+        if (c.getCount()>0) {
             c.moveToFirst();
         }
         return c;
     }
-
-    /* Add a new set of values to be inserted into the database.
-    public long insertRow(String task, String date) {
-        ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_TASK, task);
-        initialValues.put(KEY_DATE, date);
-        // Insert the data into the database.
-        return db.insert(DATABASE_TABLE, null, initialValues);
-    }
-    */
 
     // Delete a row from the database, by rowId (primary key)
     public boolean deleteRow(long rowID) {
         String where = COLUMN_ROWID + "=" + rowID;
         return db.delete(DATABASE_TABLE, where, null) != 0;
     }
-
-    /*public void deleteAll() {
-        Cursor c = getAllRows();
-        long rowId = c.getColumnIndexOrThrow(COLUMN_ROWID);
-        if (c.moveToFirst()) {
-            do {
-                deleteRow(c.getLong((int) rowId));
-            } while (c.moveToNext());
-        }
-        c.close();
-    }
-    */
-
-
-
-
-
-
-    // Return all data in the database.
-    public Cursor getAllRows() {
-        String where = null;
-        Cursor c = 	db.query(true, DATABASE_TABLE, ALL_COLUMNS, where, null, null, null, null, null);
-        if (c != null) {
-            c.moveToFirst();
-        }
-        return c;
-    }
-
-    // Get a specific row (by rowId)
-    public Cursor getRow(long rowId) {
-        String where = COLUMN_ROWID + "=" + rowId;
-        Cursor c = 	db.query(true, DATABASE_TABLE, ALL_COLUMNS,
-                where, null, null, null, null, null);
-        if (c != null) {
-            c.moveToFirst();
-        }
-        return c;
-    }
-
-    /* Change an existing row to be equal to new data.
-    public boolean updateRow(long rowId, String task, String date) {
-        String where = KEY_ROWID + "=" + rowId;
-        ContentValues newValues = new ContentValues();
-        newValues.put(KEY_TASK, task);
-        newValues.put(KEY_DATE, date);
-        // Insert it into the database.
-        return db.update(DATABASE_TABLE, newValues, where, null) != 0;
-    }
-    */
 
     private static class DatabaseHelper extends SQLiteOpenHelper
     {
