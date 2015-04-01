@@ -113,17 +113,19 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                         switch (strLocation){
                             case "Home":
                                 if (tbWorkHome.isChecked()) {
-                                    myDb.addRowDeparted(strDate,strLocation,strDirection,time,"",strComments);
+                                    myDb.addRowDeparted(strDate, strLocation, strDirection, time, "", strComments);
                                     break;
                                 } else {
-                                    //rowID = myDb.rowExists(strDate, strLocation, "To Work");
-                                    //myDb.updateRowArrived(rowID,time,strComments);
                                     myDb.addRowArrived(strDate, strLocation, "To Home", time, strComments);
+                                    //Toggle the button to 'To Work' so it ready for when I travel the next day
+                                    tbWorkHome.setChecked(true);
                                     break;
                                 }
                             case "Work":
                                 if (tbWorkHome.isChecked()) {
-                                    myDb.addRowArrived(strDate,strLocation,"To Work",time,strComments);
+                                    myDb.addRowArrived(strDate, strLocation, "To Work", time, strComments);
+                                    //Toggle the button to 'To Home' so it ready for when I travel home
+                                    tbWorkHome.setChecked(false);
                                     break;
                                 } else {
                                     rowID = myDb.rowExists(strDate, strLocation, "To Work");
@@ -163,6 +165,15 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                     myDb.updateRowDeparted(rowID, time, strFT, strComments);
                                 }
                             }
+                        /*Automatically change the status of the Arrived/Departed toggle button once the log
+                        entry is made so it ready for the next entry*/
+                        if (tbArrDep.isChecked()) {
+                            tbArrDep.setChecked(false);
+                        } else {
+                            tbArrDep.setChecked(true);
+                        }
+                        
+                        //Re-populate the List View so it displays the new information
                         populateListView();
                     }
                 }
@@ -171,6 +182,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         tbWorkHome.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                /*Whether the Fast Train checkbox is available or not is dependent on this toggle button so it
+                changes I need to change the status of the checkbox*/
                 fastTrainCheckBoxStatus();
             }
         });
@@ -178,6 +191,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         tbArrDep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                /*Whether the Fast Train checkbox is available or not is dependent on this toggle button so it
+                changes I need to change the status of the checkbox*/
                 fastTrainCheckBoxStatus();
             }
         });
@@ -188,7 +203,19 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
         strLocation = parent.getItemAtPosition(position).toString();
-
+        
+        //Only have the To Work/To Home toggle button available when at Work or Home
+        switch strLocation {
+            case "Home":
+            case "Work":
+                tbWorkHome.setEnabled(true);
+                break;
+            default:
+                tbWorkHome.setEnabled(false);
+        }
+        
+        /*Whether the Fast Train checkbox is available or not is dependent on the location so when the location
+        changes I need to change the status of the checkbox*/
         fastTrainCheckBoxStatus();
     }
 
@@ -245,14 +272,16 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         myDb.open();
     }
 
+    private void closeDB(){
+        myDb.close();
+    }
+    
     private void populateListView(){
 
         Cursor csrTodaysEntries=myDb.getAllTodaysRows(strDate);
         LogEntriesCursorAdapter adpDisplayInfo=new LogEntriesCursorAdapter(this,csrTodaysEntries );
         ListView lvDisplayInfo=(ListView)findViewById(R.id.listViewDisplayInfo);
         lvDisplayInfo.setAdapter(adpDisplayInfo);
-
-
     }
 
     private void fastTrainCheckBoxStatus() {
@@ -287,10 +316,9 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
     public class LogEntriesCursorAdapter extends CursorAdapter {
 
-
         public LogEntriesCursorAdapter (Context context, Cursor c) {
+            
             super(context, c, 0);
-
         }
 
         @Override
@@ -301,8 +329,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         public void bindView (View lvDisplayInfo, Context context, Cursor csrTodaysEntries) {
 
-            /*int dbidcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ROWID);
-            long dbid = csrTodaysEntries.getLong(dbidcol);*/
             int locationcol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_LOCATION);
             String location = csrTodaysEntries.getString(locationcol);
             int arrivedncol = csrTodaysEntries.getColumnIndex(DBAdapter.COLUMN_ARRIVED);
@@ -315,7 +341,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             String fasttrain = csrTodaysEntries.getString(fasttraincol);
 
             ImageView ivIcon = (ImageView) lvDisplayInfo.findViewById(R.id.imageViewIcon);
-            //TextView tvDbID = (TextView) lvDisplayInfo.findViewById(R.id.textViewDbID);
             TextView tvLocation = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayLocation);
             TextView tvArrived = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayArrived);
             TextView tvDeparted = (TextView) lvDisplayInfo.findViewById(R.id.textViewDisplayDeparted);
@@ -333,17 +358,12 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                     ivIcon.setImageResource(R.drawable.ic_underground);
             }
 
-
-            //tvDbID.setText(String.valueOf(dbid));
             tvLocation.setText(location);
             tvArrived.setText(arrived);
             tvDeparted.setText(departed);
             tvFastTrain.setText(fasttrain);
             tvComments.setText(comments);
         }
-
-
-
     }
 
     private void logEntryItemLongClick() {
