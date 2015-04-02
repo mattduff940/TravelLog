@@ -5,16 +5,15 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".TravelLogActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <TableLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:id="@+id/table1">
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow1">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow1">
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -41,20 +40,12 @@ tools:context=".TravelLogActivity">
                 android:format24Hour="k:mm:ss"
                 android:textSize="30sp"/>
 
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
+        </TableRow>
+        
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow2">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow2">
 
             <ToggleButton
                 android:layout_width="wrap_content"
@@ -74,19 +65,12 @@ tools:context=".TravelLogActivity">
                 android:textSize="20dp"
                 android:id="@+id/toggleButtonArrDep" />
 
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
+        </TableRow>
+        
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow3">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow3">
 
             <Spinner
                 android:layout_width="wrap_content"
@@ -101,19 +85,12 @@ tools:context=".TravelLogActivity">
                 android:id="@+id/checkBoxFastTrain"
                 android:checked="false" />
 
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
+        </TableRow>
+        
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow4">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow4">
 
             <Button
                 android:layout_width="wrap_content"
@@ -132,19 +109,12 @@ tools:context=".TravelLogActivity">
                 android:hint="@string/timehint"
                 android:textSize="30sp" />
 
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
+        </TableRow>
+        
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow5">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow5">
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -163,19 +133,12 @@ tools:context=".TravelLogActivity">
                 android:hint="@string/timehint"
                 android:textSize="30sp" />
 
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
+        </TableRow>
+        
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/linearLayoutRow6">
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow6">
 
             <EditText
                 android:layout_width="fill_parent"
@@ -184,84 +147,74 @@ tools:context=".TravelLogActivity">
                 android:id="@+id/editTextComments"
                 android:hint="@string/commenthint" />
 
-        </LinearLayout>
-    </LinearLayout>
+        </TableRow>
+        
+        <TableRow>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/btnRecordTime"
-            android:drawableStart="@drawable/ic_record"
-            android:text="Record Log Entry"
-            android:textSize="20dp" />
-    </LinearLayout>
+            android:id="@+id/tableRow7">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:id="@+id/linearLayoutHeaders">
-
-
-            <TextView
-                android:layout_width="115dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="37dp"
-                android:text="@string/location"
-                android:textStyle="bold"
-                android:id="@+id/textViewLabelLocation" />
-
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/arrived"
-                android:textStyle="bold"
-                android:id="@+id/textViewLabelArrived" />
-
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
-                android:gravity="center"
-                android:text="@string/departed"
-                android:textStyle="bold"
-                android:id="@+id/textViewLabelDeparted" />
-
-            <TextView
+            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
-                android:text="@string/fast_train"
-                android:textStyle="bold"
-                android:id="@+id/textViewLabelFastTrain" />
-
-        </LinearLayout>
-    </LinearLayout>
-
+                android:layout_gravity="center"
+                android:id="@+id/btnRecordTime"
+                android:drawableStart="@drawable/ic_record"
+                android:text="Record Log Entry"
+                android:textSize="20dp" />
+                
+        </TableRow>
+        
+    </TableLayout>
+    
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:id="@+id/linearLayoutHeaders">
 
-        <ListView
+
+        <TextView
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="37dp"
+            android:text="@string/location"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelLocation" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/arrived"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelArrived" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:gravity="center"
+            android:text="@string/departed"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelDeparted" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/listViewDisplayInfo"
-            />
+            android:paddingLeft="2dp"
+            android:text="@string/fast_train"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelFastTrain" />
+
     </LinearLayout>
+    
+    <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listViewDisplayInfo" />
 
-
+    
 </RelativeLayout>
