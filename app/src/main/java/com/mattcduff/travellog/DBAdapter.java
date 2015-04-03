@@ -159,7 +159,7 @@ public class DBAdapter {
         ContentValues newValues = new ContentValues();
         newValues.put(COLUMN_LOCATION, location);
         newValues.put(COLUMN_DIRECTION, direction);
-        newValues.put(COLUMN_ARRIVED), arrTime
+        newValues.put(COLUMN_ARRIVED, arrTime);
         newValues.put(COLUMN_DEPARTED, depTime);
         newValues.put(COLUMN_FASTTRAIN, fasttrain);
         newValues.put(COLUMN_COMMENTS, comments);
@@ -169,7 +169,7 @@ public class DBAdapter {
 
     // Return all today's data in the database.
     public Cursor getAllTodaysRows(String date) {
-        String where = COLUMN_DATE + "=" + date;
+        String where = COLUMN_DATE + "= \"" + date + "\"";
         String sortOrder = COLUMN_ROWID + " DESC";
         Cursor c = 	db.query(DATABASE_TABLE, ALL_COLUMNS, where, null, null, null, sortOrder, null);
         if (c.getCount()>0) {
