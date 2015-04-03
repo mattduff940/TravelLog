@@ -5,227 +5,216 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".TravelLogActivity">
 
-<GridLayout
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentStart="true"
-    android:padding="10dp"
-    android:id="@+id/gridLayoutInfoCapture"
-    >
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/table1">
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnDatePicker"
-        android:src="@drawable/ic_stopwatch"
-        android:layout_row="0"
-        android:layout_column="0"
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow1">
 
-        />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnDatePicker"
+                android:src="@drawable/ic_calendar"/>
 
-    <EditText
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:inputType="date"
-        android:ems="10"
-        android:textIsSelectable="false"
-        android:focusableInTouchMode="false"
-        android:id="@+id/editTextDate"
-        android:textSize="30sp"
-        android:layout_row="0"
-        android:layout_column="1"
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:ems="10"
+                android:textIsSelectable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/editTextDate"
+                android:textSize="30sp"/>
 
-        />
+            <TextClock
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textClock"
+                android:textIsSelectable="false"
+                android:focusableInTouchMode="false"
+                android:format24Hour="k:mm:ss"
+                android:textSize="30sp"/>
 
-    <TextClock
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textClock"
-        android:textIsSelectable="false"
-        android:focusableInTouchMode="false"
-        android:format24Hour="k:mm:ss"
-        android:textSize="30sp"
-        android:layout_row="0"
-        android:layout_column="2"
-        android:layout_columnSpan="2"
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow2">
 
-        />
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="@string/towork"
+                android:textOff="@string/tohome"
+                android:textSize="20dp"
+                android:id="@+id/toggleButtonWorkHome" />
 
-    <ToggleButton
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textOn="@string/towork"
-        android:textOff="@string/tohome"
-        android:textSize="20dp"
-        android:layout_row="1"
-        android:layout_column="0"
-        android:layout_columnSpan="2"
-        android:id="@+id/toggleButtonWorkHome" />
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="@string/departed"
+                android:textOff="@string/arrived"
+                android:textSize="20dp"
+                android:id="@+id/toggleButtonArrDep" />
 
-    <ToggleButton
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textOn="@string/departed"
-        android:textOff="@string/arrived"
-        android:textSize="20dp"
-        android:layout_row="1"
-        android:layout_column="2"
-        android:layout_columnSpan="2"
-        android:id="@+id/toggleButtonArrDep" />
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow3">
 
-    <Spinner
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/spnLocationNames"
-        android:spinnerMode="dropdown"
-        android:theme="@style/Base.Widget.AppCompat.DropDownItem.Spinner"
-        android:layout_row="2"
-        android:layout_column="0"
-        android:layout_columnSpan="2"
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spnLocationNames"
+                android:spinnerMode="dropdown" />
 
-        />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fast_train"
+                android:id="@+id/checkBoxFastTrain"
+                android:checked="false" />
 
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow4">
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fast_train"
-        android:id="@+id/checkBoxFastTrain"
-        android:layout_row="2"
-        android:layout_column="2"
-        android:layout_columnSpan="2"
-        android:checked="false" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnCaptureTime"
+                android:drawableStart="@drawable/ic_stopwatch" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnCaptureTime"
-        android:drawableStart="@drawable/ic_stopwatch"
-        android:layout_row="3"
-        android:layout_column="0"
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="10dp"
+                android:inputType="time"
+                android:ems="10"
+                android:id="@+id/editTextTime"
+                android:hint="@string/timehint"
+                android:textSize="30sp" />
 
-        />
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow5">
 
-    <EditText
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingStart="10dp"
-        android:inputType="time"
-        android:ems="10"
-        android:id="@+id/editTextTime"
-        android:hint="@string/timehint"
-        android:textSize="30sp"
-        android:layout_row="3"
-        android:layout_column="1"
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnDepartureTime"
+                android:src="@drawable/ic_stopwatch" />
 
-        />
+            <EditText
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="10dp"
+                android:inputType="time"
+                android:ems="10"
+                android:id="@+id/editTextDepartureTime"
+                android:hint="@string/timehint"
+                android:textSize="30sp" />
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnDepartureTime"
-        android:src="@drawable/ic_stopwatch"
-        android:layout_row="3"
-        android:layout_column="2"
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow6">
 
-        />
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:id="@+id/editTextComments"
+                android:hint="@string/commenthint" />
 
-    <EditText
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingStart="10dp"
-        android:inputType="time"
-        android:ems="10"
-        android:id="@+id/editTextDepartureTime"
-        android:hint="@string/timehint"
-        android:textSize="30sp"
-        android:layout_row="3"
-        android:layout_column="3"
+        </TableRow>
+        
+        <TableRow>
 
-        />
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableRow7">
 
-    <EditText
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:id="@+id/btnRecordTime"
+                android:drawableStart="@drawable/ic_record"
+                android:text="Record Log Entry"
+                android:textSize="20dp" />
+                
+        </TableRow>
+        
+    </TableLayout>
+    
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:id="@+id/editTextComments"
-        android:hint="@string/commenthint"
-        android:layout_row="4"
-        android:layout_column="0"
-        android:layout_columnSpan="4"
-
-        />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:id="@+id/btnRecordTime"
-        android:drawableStart="@drawable/ic_record"
-        android:layout_row="5"
-        android:layout_column="0"
-        android:layout_columnSpan="4"
-
-        />
+        android:layout_marginTop="25dp"
+        android:id="@+id/linearLayoutHeaders">
 
 
+        <TextView
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="37dp"
+            android:text="@string/location"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelLocation" />
 
-</GridLayout>
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/arrived"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelArrived" />
 
-<LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/gridLayoutInfoCapture"
-    android:layout_marginTop="25dp"
-    android:id="@+id/linearLayoutHeaders">
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:gravity="center"
+            android:text="@string/departed"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelDeparted" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:text="@string/fast_train"
+            android:textStyle="bold"
+            android:id="@+id/textViewLabelFastTrain" />
 
-    <TextView
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="37dp"
-        android:text="@string/location"
-        android:textStyle="bold"
-        android:id="@+id/textViewLabelLocation" />
+    </LinearLayout>
+    
+    <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listViewDisplayInfo" />
 
-    <TextView
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/arrived"
-        android:textStyle="bold"
-        android:id="@+id/textViewLabelArrived" />
-
-    <TextView
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:paddingLeft="2dp"
-        android:gravity="center"
-        android:text="@string/departed"
-        android:textStyle="bold"
-        android:id="@+id/textViewLabelDeparted" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="2dp"
-        android:text="@string/fast_train"
-        android:textStyle="bold"
-        android:id="@+id/textViewLabelFastTrain" />
-
-</LinearLayout>
-
-<ListView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/linearLayoutHeaders"
-    android:id="@+id/listViewDisplayInfo"
-    />
-
+    
 </RelativeLayout>
