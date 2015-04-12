@@ -16,5 +16,11 @@
     <string name="tohome">To Home</string>
     <string name="timehint">Enter time</string>
     <string name="commenthint">Enter comment if required</string>
+    <string name="title">Welcome to the Travel Log App</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="button_log_travel">Log Travel</string>
+    <string name="button_review_log">Review Log</string>
 
 </resources>

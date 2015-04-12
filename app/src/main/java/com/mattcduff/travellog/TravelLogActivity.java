@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.text.DateFormat;
@@ -33,9 +35,21 @@ import java.util.Date;
 
 public class TravelLogActivity extends ActionBarActivity implements OnItemSelectedListener {
 
+    ArrayAdapter<String> adpLocationNames;
+    Boolean blnWorkHome, blnArrDep, blnFT;
+    Button btnSaveLogEntry, btnSaveChanges, btnCancelChanges;
     CheckBox chkFT;
+    EditText etArrTime, etDepTime, etComments, etLocation;
+    ListView lvDisplayInfo;
+    Long editRowID;
+    Spinner spnLocationNames;
+    TextClock tcClock, tcDate;
+    ToggleButton tbWorkHome, tbArrDep;
     Date datDate;
+    String[] strLocationNames=new String[]{"Home", "Ruislip", "H-o-t-H",
+            "Finchley Road", "Westminster", "Work"};
     String strDate, strLocation, strDirection, strComments;
+    String strCurrentLocation,strCurrentArrTime,strCurrentDepTime ,strCurrentComments;
     SimpleDateFormat sdfMyDateFormat;
     DBAdapter myDb;
     long rowID;
@@ -46,74 +60,90 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_log);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ToggleButton tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
-        final ToggleButton tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
+        adpLocationNames = new ArrayAdapter<>(this, R.layout.spinner_item,strLocationNames);
 
-        tbWorkHome.setChecked(true);
-        tbArrDep.setChecked(true);
-
-        sdfMyDateFormat=new SimpleDateFormat("dd MMM yy");
-        datDate = Calendar.getInstance().getTime();
-        strDate=sdfMyDateFormat.format(datDate);
-
-        TextClock tcDate = (TextClock) findViewById(R.id.textClockDate);
-        tcDate.setText(strDate);
+        btnSaveLogEntry = (Button) findViewById(R.id.btnSaveLogEntry);
+        btnSaveChanges = (Button) findViewById(R.id.btnSaveChanges);
+        btnSaveChanges.setEnabled(false);
+        btnSaveChanges.setVisibility(View.INVISIBLE);
+        btnCancelChanges = (Button) findViewById(R.id.btnCancelChanges);
+        btnCancelChanges.setEnabled(false);
+        btnCancelChanges.setVisibility(View.INVISIBLE);
 
         chkFT = (CheckBox)findViewById(R.id.checkBoxFastTrain);
         chkFT.setEnabled(false);
 
-        String[] strLocationNames=new String[]{"Home", "Ruislip", "Ruislip Manor", "H-o-t-H",
-                "Finchley Road", "Westminster", "Work"};
+        etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
+        etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
+        etComments = (EditText) findViewById(R.id.editTextComments);
+        etLocation = (EditText) findViewById(R.id.editTextLocationNames);
+        etLocation.setEnabled(false);
+        etLocation.setVisibility(View.INVISIBLE);
 
-        final Spinner spnLocationNames= (Spinner) findViewById(R.id.spnLocationNames);
+        lvDisplayInfo = (ListView) findViewById(R.id.listViewDisplayInfo);
 
-        ArrayAdapter<String> adpLocationsNames=new ArrayAdapter<>(this, R.layout.spinner_item,strLocationNames);
-        spnLocationNames.setAdapter(adpLocationsNames);
+        spnLocationNames= (Spinner) findViewById(R.id.spnLocationNames);
+        spnLocationNames.setAdapter(adpLocationNames);
         spnLocationNames.setOnItemSelectedListener(this);
 
         strLocation="Home";
 
+        tcDate = (TextClock) findViewById(R.id.textClockDate);
+        tcDate.setText(strDate);
+
+        tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
+        tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
+
+        tbWorkHome.setChecked(true);
+        tbArrDep.setChecked(true);
+
+        sdfMyDateFormat = new SimpleDateFormat("dd MMM yy");
+        datDate = Calendar.getInstance().getTime();
+        strDate=sdfMyDateFormat.format(datDate);
+
         openDB();
         populateListView();
+        logEntryItemClick();
         logEntryItemLongClick();
 
-        Button btnRecord = (Button)findViewById(R.id.btnRecordTime);
-        btnRecord.setOnClickListener(
+        btnSaveLogEntry.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
 
+                        long locationNamesItemID;
                         String strFT, strTime, strManualTime;
                         EditText etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
                         EditText etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
                         EditText etComments = (EditText) findViewById(R.id.editTextComments);
                         CheckBox chkFT = (CheckBox) findViewById(R.id.checkBoxFastTrain);
-                        strComments=etComments.getText().toString();
+                        strComments = etComments.getText().toString();
 
 
                         /*Check if the appropriate editText has a time in it; if not take it from the textClockTime*/
-                        if (tbArrDep.isChecked() ) {
-                            if (etDepTime.getText().length()==0) {
+                        if (tbArrDep.isChecked()) {
+                            if (etDepTime.getText().length() == 0) {
                                 strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
                             } else {
-                                strTime=etDepTime.getText().toString();
+                                strTime = etDepTime.getText().toString();
                             }
                         } else {
-                            if (etArrTime.getText().length()==0) {
+                            if (etArrTime.getText().length() == 0) {
                                 strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
                             } else {
-                                strTime=etArrTime.getText().toString();
+                                strTime = etArrTime.getText().toString();
                             }
                         }
 
 
                         if (tbWorkHome.isChecked()) {
-                            strDirection="To Work";
+                            strDirection = "To Work";
                         } else {
-                            strDirection="To Home";
+                            strDirection = "To Home";
                         }
 
-                        switch (strLocation){
+                        switch (strLocation) {
                             case "Home":
                                 if (tbWorkHome.isChecked()) {
                                     myDb.addRowDeparted(strDate, strLocation, strDirection, strTime, "", strComments);
@@ -137,10 +167,10 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                 }
                             default:
                                 rowID = myDb.rowExists(strDate, strLocation, strDirection);
-                                if (rowID<0 && (!tbArrDep.isChecked())) {
-                                    myDb.addRowArrived(strDate,strLocation,strDirection,strTime,strComments);
+                                if (rowID < 0 && (!tbArrDep.isChecked())) {
+                                    myDb.addRowArrived(strDate, strLocation, strDirection, strTime, strComments);
                                 }
-                                if (rowID<0 && tbArrDep.isChecked()) {
+                                if (rowID < 0 && tbArrDep.isChecked()) {
                                     if (chkFT.isChecked()) {
                                         strFT = "Yes";
                                     } else {
@@ -167,15 +197,30 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                                     }
                                     myDb.updateRowDeparted(rowID, strTime, strFT, strComments);
                                 }
-                            }
+                        }
                         /*Automatically change the status of the Arrived/Departed toggle button once the log
                         entry is made so it ready for the next entry*/
+
+                        locationNamesItemID=spnLocationNames.getSelectedItemId();
+                        if (tbWorkHome.isChecked() && tbArrDep.isChecked()) {
+                            locationNamesItemID=locationNamesItemID+1;
+                            if (locationNamesItemID<=5) {
+                                spnLocationNames.setSelection((int) locationNamesItemID);
+                            }
+                        }
+                        if (!tbWorkHome.isChecked() && tbArrDep.isChecked()) {
+                            locationNamesItemID = locationNamesItemID - 1;
+                            if (locationNamesItemID >= 0) {
+                                spnLocationNames.setSelection((int) locationNamesItemID);
+                            }
+                        }
+
                         if (tbArrDep.isChecked()) {
                             tbArrDep.setChecked(false);
                         } else {
                             tbArrDep.setChecked(true);
                         }
-                        
+
                         //Re-populate the List View so it displays the new information
                         populateListView();
                     }
@@ -187,7 +232,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 /*Whether the Fast Train checkbox is available or not is dependent on this toggle button so it
                 changes I need to change the status of the checkbox*/
-                fastTrainCheckBoxStatus();
+                fastTrainCheckBoxStatus(strLocation);
             }
         });
 
@@ -200,7 +245,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
                 /*Whether the Fast Train checkbox is available or not is dependent on this toggle button so it
                 changes I need to change the status of the checkbox*/
-                fastTrainCheckBoxStatus();
+                fastTrainCheckBoxStatus(strLocation);
             }
         });
 
@@ -209,24 +254,15 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-        ToggleButton tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
-        EditText etComments = (EditText) findViewById(R.id.editTextComments);
-
         strLocation = parent.getItemAtPosition(position).toString();
-        
-        //Only have the To Work/To Home toggle button available when at Work or Home
-        switch (strLocation) {
-            case "Home":
-            case "Work":
-                tbWorkHome.setEnabled(true);
-                break;
-            default:
-                tbWorkHome.setEnabled(false);
-        }
+
+        workHomeToggleButtonStatus(strLocation);
+
+
         
         /*Whether the Fast Train checkbox is available or not is dependent on the location so when the location
         changes I need to change the status of the checkbox*/
-        fastTrainCheckBoxStatus();
+        fastTrainCheckBoxStatus(strLocation);
 
         etComments.setText("");
     }
@@ -234,6 +270,13 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
     public void onNothingSelected(AdapterView<?> arg0){
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        closeDB();
+    }
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -253,7 +296,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_travel_log, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -271,12 +314,40 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         switch (item.getItemId())
         {
-            case R.id.exit_app:
-                finish();
+            case R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.action_settings:
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onClickSaveChanges(View v) {
+
+        String strEditLocation,strEditArrTime,strEditDepTime ,strEditFastTrain, strEditComments;
+
+        strEditLocation=etLocation.getText().toString();
+
+        strEditArrTime=etArrTime.getText().toString();
+        strEditDepTime=etDepTime.getText().toString();
+        if (chkFT.isChecked()) {
+            strEditFastTrain="Yes";
+        } else {
+            strEditFastTrain="No";
+        }
+        strEditComments=etComments.getText().toString();
+
+        myDb.updateEditedRow(editRowID,strEditLocation,strEditArrTime, strEditDepTime, strEditFastTrain, strEditComments);
+
+        resetViewStatus();
+        populateListView();
+    }
+
+    public void onClickCancelChanges(View v) {
+
+        resetViewStatus();
     }
 
     private void openDB(){
@@ -292,18 +363,13 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         Cursor csrTodaysEntries=myDb.getAllTodaysRows(strDate);
         LogEntriesCursorAdapter adpDisplayInfo=new LogEntriesCursorAdapter(this,csrTodaysEntries );
-        ListView lvDisplayInfo=(ListView)findViewById(R.id.listViewDisplayInfo);
         lvDisplayInfo.setAdapter(adpDisplayInfo);
     }
 
-    private void fastTrainCheckBoxStatus() {
+    private void fastTrainCheckBoxStatus(String strLoc) {
 
-        ToggleButton tbWorkHome= (ToggleButton) findViewById(R.id.toggleButtonWorkHome);
-        ToggleButton tbArrDep= (ToggleButton) findViewById(R.id.toggleButtonArrDep);
-
-        switch (strLocation) {
+        switch (strLoc) {
             case "Ruislip":
-            case "Ruislip Manor":
             case "H-o-t-H":
                 if (tbWorkHome.isChecked() && tbArrDep.isChecked()) {
                     chkFT.setVisibility(View.VISIBLE);
@@ -333,9 +399,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
     private void manualTimeEntryStatus(boolean isChecked) {
 
-        EditText etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
-        EditText etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
-
         if (isChecked) {
             etArrTime.setEnabled(false);
             etArrTime.setVisibility(View.INVISIBLE);
@@ -349,6 +412,63 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             etDepTime.setEnabled(false);
             etDepTime.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void workHomeToggleButtonStatus (String strLoc) {
+        //Only have the To Work/To Home toggle button available when at Work or Home
+        switch (strLoc) {
+            case "Home":
+            case "Work":
+                //tbWorkHome.setVisibility(View.VISIBLE);
+                tbWorkHome.setEnabled(true);
+                break;
+            default:
+                tbWorkHome.setEnabled(false);
+                //tbWorkHome.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void resetViewStatus () {
+        //Enable or Disable the various buttons based upon the saved current location
+        workHomeToggleButtonStatus(strCurrentLocation);
+        fastTrainCheckBoxStatus(strCurrentLocation);
+
+        //Restore the current values into the various views
+        tbWorkHome.setChecked(blnWorkHome);
+        tbArrDep.setChecked(blnArrDep);
+        manualTimeEntryStatus(blnArrDep);
+        chkFT.setChecked(blnFT);
+
+        if (blnArrDep) {
+            etDepTime.setText(strCurrentDepTime);
+        } else {
+            etArrTime.setText(strCurrentArrTime);
+        }
+
+        etComments.setText(strCurrentComments);
+
+        tbArrDep.setVisibility(View.VISIBLE);
+        tbArrDep.setEnabled(true);
+
+        blnArrDep=null;
+        blnFT=null;
+        blnWorkHome=null;
+        strCurrentArrTime=null;
+        strCurrentLocation=null;
+        strCurrentDepTime=null;
+        strCurrentComments=null;
+
+        btnSaveLogEntry.setVisibility(View.VISIBLE);
+        btnSaveLogEntry.setEnabled(true);
+        btnSaveChanges.setEnabled(false);
+        btnSaveChanges.setVisibility(View.INVISIBLE);
+        btnCancelChanges.setEnabled(false);
+        btnCancelChanges.setVisibility(View.INVISIBLE);
+
+        etLocation.setEnabled(false);
+        etLocation.setVisibility(View.INVISIBLE);
+        spnLocationNames.setVisibility(View.VISIBLE);
+        spnLocationNames.setEnabled(true);
     }
 
     public class LogEntriesCursorAdapter extends CursorAdapter {
@@ -403,8 +523,129 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         }
     }
 
+    private void logEntryItemClick() {
+
+        lvDisplayInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                Cursor csrEditLogEntry;
+                int edcol,elcol, eatcol, edtcol, eftcol, eccol;
+
+                String strEditDirection, strEditLocation,strEditArrTime,strEditDepTime ,strEditFastTrain, strEditComments;
+
+                editRowID=id;
+
+                tbArrDep.setEnabled(false);
+                tbArrDep.setVisibility(View.INVISIBLE);
+                spnLocationNames.setEnabled(false);
+                spnLocationNames.setVisibility(View.INVISIBLE);
+                etLocation.setVisibility(View.VISIBLE);
+                etLocation.setEnabled(true);
+
+                //Save the current values in the various views
+                blnWorkHome=tbWorkHome.isChecked();
+                blnArrDep=tbArrDep.isChecked();
+                blnFT=chkFT.isChecked();
+
+
+                strCurrentLocation=strLocation;
+                strCurrentArrTime=etArrTime.getText().toString();
+                strCurrentDepTime=etDepTime.getText().toString();
+                strCurrentComments=etComments.getText().toString();
+
+                tbArrDep.setEnabled(false);
+                btnSaveLogEntry.setEnabled(false);
+                btnSaveLogEntry.setVisibility(View.INVISIBLE);
+                btnSaveChanges.setVisibility(View.VISIBLE);
+                btnSaveChanges.setEnabled(true);
+                btnCancelChanges.setVisibility(View.VISIBLE);
+                btnCancelChanges.setEnabled(true);
+
+                csrEditLogEntry=myDb.getEditRow(id);
+
+                elcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_LOCATION);
+                strEditLocation=csrEditLogEntry.getString(elcol);
+                etLocation.setText(strEditLocation);
+
+                edcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_DIRECTION);
+                strEditDirection=csrEditLogEntry.getString(edcol);
+                //only enable the Work/Home toggle button if it normally available for the location being edited
+                workHomeToggleButtonStatus(strEditLocation);
+                if (strEditDirection=="To Work") {
+                    tbWorkHome.setChecked(true);
+                } else {
+                    tbWorkHome.setChecked(false);
+                }
+                eatcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_ARRIVED);
+                strEditArrTime=csrEditLogEntry.getString(eatcol);
+                //only show the arrival time box if the entry to be edited contains an entry time
+                if (strEditArrTime != null) {
+                    etArrTime.setVisibility(View.VISIBLE);
+                    etArrTime.setEnabled(true);
+                    etArrTime.setText(strEditArrTime);
+                } else {
+                    etArrTime.setEnabled(false);
+                    etArrTime.setVisibility(View.INVISIBLE);
+                }
+
+                edtcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_DEPARTED);
+                strEditDepTime=csrEditLogEntry.getString(edtcol);
+                //only show the departure time box if the entry to be edited contains an entry time
+                if (strEditDepTime != null) {
+                    etDepTime.setVisibility(View.VISIBLE);
+                    etDepTime.setEnabled(true);
+                    etDepTime.setText(strEditDepTime);
+                } else {
+                    etDepTime.setEnabled(false);
+                    etDepTime.setVisibility(View.INVISIBLE);
+                }
+
+                eftcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_FASTTRAIN);
+                strEditFastTrain=csrEditLogEntry.getString(eftcol);
+
+                //Only show the fast train checkbox if it is valid for the location being edited
+                if (strEditFastTrain != null) {
+                    if (strEditFastTrain.length()!= 0) {
+                        chkFT.setVisibility(View.VISIBLE);
+                        chkFT.setEnabled(true);
+                        if (strEditFastTrain=="Yes") {
+                            chkFT.setChecked(true);
+                        } else {
+                            chkFT.setChecked(false);
+                        }
+                    } else {
+                        chkFT.setEnabled(false);
+                        chkFT.setVisibility(View.INVISIBLE);
+                    }
+                } else {
+                    chkFT.setEnabled(false);
+                    chkFT.setVisibility(View.INVISIBLE);
+                    }
+
+                eccol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_COMMENTS);
+                strEditComments=csrEditLogEntry.getString(eccol);
+                etComments.setText(strEditComments);
+
+
+
+                /*Toast.makeText(TravelLogActivity.this, "Current values are \n" +
+                        blnWorkHome + "\n" +
+                        blnArrDep + "\n" +
+                        blnFT + "\n" +
+                        strCurrentLocation + "\n" +
+                        strCurrentArrTime + "\n" +
+                        strCurrentDepTime + "\n" +
+                        strCurrentComments, Toast.LENGTH_LONG).show();*/
+
+
+            }
+        });
+    }
+
     private void logEntryItemLongClick() {
-        ListView lvDisplayInfo = (ListView) findViewById(R.id.listViewDisplayInfo);
+
         lvDisplayInfo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {

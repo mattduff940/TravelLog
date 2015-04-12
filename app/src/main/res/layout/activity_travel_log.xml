@@ -72,6 +72,14 @@ tools:context=".TravelLogActivity">
 
     </LinearLayout>
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linearLayout2"
+        android:inputType="textCapWords"
+        android:textSize="25sp"
+        android:id="@+id/editTextLocationNames" />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -156,24 +164,33 @@ tools:context=".TravelLogActivity">
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/btnRecordTime"
+            android:id="@+id/btnSaveChanges"
             android:drawableStart="@drawable/ic_record"
-            android:text="Save Log Entry"
+            android:text="Save Changes"
+            android:onClick="onClickSaveChanges"
             android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/btnSaveChanges"
-            android:drawableStart="@drawable/ic_record"
-            android:text="Save Changes"
-            android:layout_weight="1"
-            android:enabled="false"
-            android:visibility="invisible" />
+            android:id="@+id/btnCancelChanges"
+            android:drawableStart="@drawable/ic_cancel"
+            android:text="Cancel Changes"
+            android:onClick="onClickCancelChanges"
+            android:layout_weight="1" />
 
     </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linearLayout5"
+        android:layout_alignParentStart="true"
+        android:id="@+id/btnSaveLogEntry"
+        android:drawableStart="@drawable/ic_record"
+        android:text="Save Log Entry"
+
+        android:layout_weight="1" />
 
     <LinearLayout
         android:orientation="horizontal"

@@ -89,7 +89,7 @@ public class DBAdapter {
         initialValues.put(COLUMN_ARRIVED, time);
         initialValues.put(COLUMN_COMMENTS, comments);
 
-        Log.i(TAG,"Arrived Row Added");
+        Log.i(TAG, "Arrived Row Added");
 
         return db.insert(DATABASE_TABLE, null, initialValues);
 
@@ -152,13 +152,22 @@ public class DBAdapter {
         return db.update(DATABASE_TABLE, newValues, where, null) !=0;
     }
     
+    //Return the row to be edited
+    public Cursor getEditRow(long rowID) {
+        String where = COLUMN_ROWID + "=" + rowID;
+        Cursor c = 	db.query(DATABASE_TABLE, ALL_COLUMNS, where, null, null, null, null, null);
+        if (c.getCount()>0) {
+            c.moveToFirst();
+        }
+        return c;
+    }
+
     //Update a row with all the fields that could have been edited
-    public boolean updateEditedRow(long rowID, String location, String direction, String arrTime, String depTime, String fasttrain, String comments) {
+    public boolean updateEditedRow(long rowID, String location, String arrTime, String depTime, String fasttrain, String comments) {
 
         String where = COLUMN_ROWID + "=" + rowID;
         ContentValues newValues = new ContentValues();
         newValues.put(COLUMN_LOCATION, location);
-        newValues.put(COLUMN_DIRECTION, direction);
         newValues.put(COLUMN_ARRIVED, arrTime);
         newValues.put(COLUMN_DEPARTED, depTime);
         newValues.put(COLUMN_FASTTRAIN, fasttrain);
