@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -20,8 +21,7 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,16 +33,16 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-public class TravelLogActivity extends ActionBarActivity implements OnItemSelectedListener {
+public class TravelLogActivity extends ActionBarActivity {
 
     ArrayAdapter<String> adpLocationNames;
+    AutoCompleteTextView actvLocationNames;
     Boolean blnWorkHome, blnArrDep, blnFT;
     Button btnSaveLogEntry, btnSaveChanges, btnCancelChanges;
     CheckBox chkFT;
-    EditText etArrTime, etDepTime, etComments, etLocation;
+    EditText etArrTime, etDepTime, etComments;
     ListView lvDisplayInfo;
     Long editRowID;
-    Spinner spnLocationNames;
     TextClock tcClock, tcDate;
     ToggleButton tbWorkHome, tbArrDep;
     Date datDate;
@@ -64,6 +64,30 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         adpLocationNames = new ArrayAdapter<>(this, R.layout.spinner_item,strLocationNames);
 
+        actvLocationNames = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextViewLocationNames);
+        actvLocationNames.setThreshold(1);
+        actvLocationNames.setAdapter(adpLocationNames);
+        actvLocationNames.setText(adpLocationNames.getItem(0));
+        actvLocationNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                strLocation = parent.getItemAtPosition(position).toString();
+
+                workHomeToggleButtonStatus(strLocation);
+
+                /*Whether the Fast Train checkbox is available or not is dependent on the location so when the location
+                changes I need to change the status of the checkbox*/
+                fastTrainCheckBoxStatus(strLocation);
+
+                etComments.setText("");
+            }
+
+            public void onNothingSelected(AdapterView<?> arg0) {
+
+            }
+        });
+
         btnSaveLogEntry = (Button) findViewById(R.id.btnSaveLogEntry);
         btnSaveChanges = (Button) findViewById(R.id.btnSaveChanges);
         btnSaveChanges.setEnabled(false);
@@ -78,15 +102,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
         etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
         etComments = (EditText) findViewById(R.id.editTextComments);
-        etLocation = (EditText) findViewById(R.id.editTextLocationNames);
-        etLocation.setEnabled(false);
-        etLocation.setVisibility(View.INVISIBLE);
 
         lvDisplayInfo = (ListView) findViewById(R.id.listViewDisplayInfo);
-
-        spnLocationNames= (Spinner) findViewById(R.id.spnLocationNames);
-        spnLocationNames.setAdapter(adpLocationNames);
-        spnLocationNames.setOnItemSelectedListener(this);
 
         strLocation="Home";
 
@@ -107,125 +124,9 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         populateListView();
         logEntryItemClick();
         logEntryItemLongClick();
-
-        btnSaveLogEntry.setOnClickListener(
-                new Button.OnClickListener() {
-                    public void onClick(View v) {
-
-                        long locationNamesItemID;
-                        String strFT, strTime, strManualTime;
-                        EditText etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
-                        EditText etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
-                        EditText etComments = (EditText) findViewById(R.id.editTextComments);
-                        CheckBox chkFT = (CheckBox) findViewById(R.id.checkBoxFastTrain);
-                        strComments = etComments.getText().toString();
+        saveLogEntryClick();
 
 
-                        /*Check if the appropriate editText has a time in it; if not take it from the textClockTime*/
-                        if (tbArrDep.isChecked()) {
-                            if (etDepTime.getText().length() == 0) {
-                                strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
-                            } else {
-                                strTime = etDepTime.getText().toString();
-                            }
-                        } else {
-                            if (etArrTime.getText().length() == 0) {
-                                strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
-                            } else {
-                                strTime = etArrTime.getText().toString();
-                            }
-                        }
-
-
-                        if (tbWorkHome.isChecked()) {
-                            strDirection = "To Work";
-                        } else {
-                            strDirection = "To Home";
-                        }
-
-                        switch (strLocation) {
-                            case "Home":
-                                if (tbWorkHome.isChecked()) {
-                                    myDb.addRowDeparted(strDate, strLocation, strDirection, strTime, "", strComments);
-                                    break;
-                                } else {
-                                    myDb.addRowArrived(strDate, strLocation, "To Home", strTime, strComments);
-                                    //Toggle the button to 'To Work' so it ready for when I travel the next day
-                                    tbWorkHome.setChecked(true);
-                                    break;
-                                }
-                            case "Work":
-                                if (tbWorkHome.isChecked()) {
-                                    myDb.addRowArrived(strDate, strLocation, "To Work", strTime, strComments);
-                                    //Toggle the button to 'To Home' so it ready for when I travel home
-                                    tbWorkHome.setChecked(false);
-                                    break;
-                                } else {
-                                    rowID = myDb.rowExists(strDate, strLocation, "To Work");
-                                    myDb.updateRowDeparted(rowID, strTime, "", strComments);
-                                    break;
-                                }
-                            default:
-                                rowID = myDb.rowExists(strDate, strLocation, strDirection);
-                                if (rowID < 0 && (!tbArrDep.isChecked())) {
-                                    myDb.addRowArrived(strDate, strLocation, strDirection, strTime, strComments);
-                                }
-                                if (rowID < 0 && tbArrDep.isChecked()) {
-                                    if (chkFT.isChecked()) {
-                                        strFT = "Yes";
-                                    } else {
-                                        if (chkFT.isEnabled()) {
-                                            strFT = "No";
-                                        } else {
-                                            strFT = "";
-                                        }
-                                        myDb.addRowDeparted(strDate, strLocation, strDirection, strTime, strFT, strComments);
-                                    }
-                                }
-                                if (rowID >= 0 && (!tbArrDep.isChecked())) {
-                                    myDb.updateRowArrived(rowID, strTime, strComments);
-                                }
-                                if (rowID >= 0 && tbArrDep.isChecked()) {
-                                    if (chkFT.isChecked()) {
-                                        strFT = "Yes";
-                                    } else {
-                                        if (chkFT.isEnabled()) {
-                                            strFT = "No";
-                                        } else {
-                                            strFT = "";
-                                        }
-                                    }
-                                    myDb.updateRowDeparted(rowID, strTime, strFT, strComments);
-                                }
-                        }
-                        /*Automatically change the status of the Arrived/Departed toggle button once the log
-                        entry is made so it ready for the next entry*/
-
-                        locationNamesItemID=spnLocationNames.getSelectedItemId();
-                        if (tbWorkHome.isChecked() && tbArrDep.isChecked()) {
-                            locationNamesItemID=locationNamesItemID+1;
-                            if (locationNamesItemID<=5) {
-                                spnLocationNames.setSelection((int) locationNamesItemID);
-                            }
-                        }
-                        if (!tbWorkHome.isChecked() && tbArrDep.isChecked()) {
-                            locationNamesItemID = locationNamesItemID - 1;
-                            if (locationNamesItemID >= 0) {
-                                spnLocationNames.setSelection((int) locationNamesItemID);
-                            }
-                        }
-
-                        if (tbArrDep.isChecked()) {
-                            tbArrDep.setChecked(false);
-                        } else {
-                            tbArrDep.setChecked(true);
-                        }
-
-                        //Re-populate the List View so it displays the new information
-                        populateListView();
-                    }
-                }
-        );
 
         tbWorkHome.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -247,29 +148,13 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                 changes I need to change the status of the checkbox*/
                 fastTrainCheckBoxStatus(strLocation);
             }
+
+
         });
 
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-        strLocation = parent.getItemAtPosition(position).toString();
-
-        workHomeToggleButtonStatus(strLocation);
-
-
-        
-        /*Whether the Fast Train checkbox is available or not is dependent on the location so when the location
-        changes I need to change the status of the checkbox*/
-        fastTrainCheckBoxStatus(strLocation);
-
-        etComments.setText("");
-    }
-
-    public void onNothingSelected(AdapterView<?> arg0){
-
-    }
 
     @Override
     protected void onDestroy() {
@@ -328,7 +213,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
         String strEditLocation,strEditArrTime,strEditDepTime ,strEditFastTrain, strEditComments;
 
-        strEditLocation=etLocation.getText().toString();
+        strEditLocation=actvLocationNames.getText().toString();
 
         strEditArrTime=etArrTime.getText().toString();
         strEditDepTime=etDepTime.getText().toString();
@@ -445,6 +330,8 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
             etArrTime.setText(strCurrentArrTime);
         }
 
+        actvLocationNames.setText(strCurrentLocation);
+
         etComments.setText(strCurrentComments);
 
         tbArrDep.setVisibility(View.VISIBLE);
@@ -465,10 +352,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         btnCancelChanges.setEnabled(false);
         btnCancelChanges.setVisibility(View.INVISIBLE);
 
-        etLocation.setEnabled(false);
-        etLocation.setVisibility(View.INVISIBLE);
-        spnLocationNames.setVisibility(View.VISIBLE);
-        spnLocationNames.setEnabled(true);
     }
 
     public class LogEntriesCursorAdapter extends CursorAdapter {
@@ -523,6 +406,154 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
         }
     }
 
+    private void saveLogEntryClick() {
+        btnSaveLogEntry.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+
+                        String strFT, strTime, strManualTime;
+                        EditText etArrTime = (EditText) findViewById(R.id.editTextArrivedTime);
+                        EditText etDepTime = (EditText) findViewById(R.id.editTextDepartedTime);
+                        EditText etComments = (EditText) findViewById(R.id.editTextComments);
+                        CheckBox chkFT = (CheckBox) findViewById(R.id.checkBoxFastTrain);
+
+                        strComments = etComments.getText().toString();
+
+
+                        /*Check if the appropriate editText has a time in it; if not take it from the textClockTime*/
+                        if (tbArrDep.isChecked()) {
+                            if (etDepTime.getText().length() == 0) {
+                                strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
+                            } else {
+                                strTime = etDepTime.getText().toString();
+                            }
+                        } else {
+                            if (etArrTime.getText().length() == 0) {
+                                strTime = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
+                            } else {
+                                strTime = etArrTime.getText().toString();
+                            }
+                        }
+
+
+                        if (tbWorkHome.isChecked()) {
+                            strDirection = "To Work";
+                        } else {
+                            strDirection = "To Home";
+                        }
+
+                        switch (strLocation) {
+                            case "Home":
+                                if (tbWorkHome.isChecked()) {
+                                    myDb.addRowDeparted(strDate, strLocation, strDirection, strTime, "", strComments);
+                                    break;
+                                } else {
+                                    myDb.addRowArrived(strDate, strLocation, "To Home", strTime, strComments);
+                                    //Toggle the button to 'To Work' so it ready for when I travel the next day
+                                    tbWorkHome.setChecked(true);
+                                    break;
+                                }
+                            case "Work":
+                                if (tbWorkHome.isChecked()) {
+                                    myDb.addRowArrived(strDate, strLocation, "To Work", strTime, strComments);
+                                    //Toggle the button to 'To Home' so it ready for when I travel home
+                                    tbWorkHome.setChecked(false);
+                                    break;
+                                } else {
+                                    rowID = myDb.rowExists(strDate, strLocation, "To Work");
+                                    myDb.updateRowDeparted(rowID, strTime, "", strComments);
+                                    break;
+                                }
+                            default:
+                                rowID = myDb.rowExists(strDate, strLocation, strDirection);
+                                if (rowID < 0 && (!tbArrDep.isChecked())) {
+                                    myDb.addRowArrived(strDate, strLocation, strDirection, strTime, strComments);
+                                }
+                                if (rowID < 0 && tbArrDep.isChecked()) {
+                                    if (chkFT.isChecked()) {
+                                        strFT = "Yes";
+                                    } else {
+                                        if (chkFT.isEnabled()) {
+                                            strFT = "No";
+                                        } else {
+                                            strFT = "";
+                                        }
+                                        myDb.addRowDeparted(strDate, strLocation, strDirection, strTime, strFT, strComments);
+                                    }
+                                }
+                                if (rowID >= 0 && (!tbArrDep.isChecked())) {
+                                    myDb.updateRowArrived(rowID, strTime, strComments);
+                                }
+                                if (rowID >= 0 && tbArrDep.isChecked()) {
+                                    if (chkFT.isChecked()) {
+                                        strFT = "Yes";
+                                    } else {
+                                        if (chkFT.isEnabled()) {
+                                            strFT = "No";
+                                        } else {
+                                            strFT = "";
+                                        }
+                                    }
+                                    myDb.updateRowDeparted(rowID, strTime, strFT, strComments);
+                                }
+                        }
+                        /*Automatically change the status of the Arrived/Departed toggle button once the log
+                        entry is made so it ready for the next entry*/
+
+                        if (tbWorkHome.isChecked() && tbArrDep.isChecked()) {
+                            switch (strLocation) {
+                                case "Home":
+                                    strLocation="Rusilip";
+                                    break;
+                                case "Ruislip":
+                                    strLocation="H-o-t-H";
+                                    break;
+                                case "H-o-t-H":
+                                    strLocation="Finchley Road";
+                                    break;
+                                case "Finchley Road":
+                                    strLocation="Westminster";
+                                    break;
+                                case "Westminster":
+                                    strLocation="Work";
+                                    break;
+                            }
+
+                        }
+                        if (!tbWorkHome.isChecked() && tbArrDep.isChecked()) {
+                            switch (strLocation) {
+                                case "Ruislip":
+                                    strLocation="Home";
+                                    break;
+                                case "Finchley Road":
+                                    strLocation="Ruislip";
+                                    break;
+                                case "H-o-t-H":
+                                    strLocation="Ruislip";
+                                    break;
+                                case "Work":
+                                    strLocation="Westminster";
+                                    break;
+                                case "Westminster":
+                                    strLocation="Finchley Road";
+                                    break;
+                            }
+                        }
+                        actvLocationNames.setText(strLocation);
+
+                        if (tbArrDep.isChecked()) {
+                            tbArrDep.setChecked(false);
+                        } else {
+                            tbArrDep.setChecked(true);
+                        }
+
+                        //Re-populate the List View so it displays the new information
+                        populateListView();
+                    }
+                }
+        );
+    }
+
     private void logEntryItemClick() {
 
         lvDisplayInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -539,10 +570,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
                 tbArrDep.setEnabled(false);
                 tbArrDep.setVisibility(View.INVISIBLE);
-                spnLocationNames.setEnabled(false);
-                spnLocationNames.setVisibility(View.INVISIBLE);
-                etLocation.setVisibility(View.VISIBLE);
-                etLocation.setEnabled(true);
 
                 //Save the current values in the various views
                 blnWorkHome=tbWorkHome.isChecked();
@@ -567,7 +594,7 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
 
                 elcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_LOCATION);
                 strEditLocation=csrEditLogEntry.getString(elcol);
-                etLocation.setText(strEditLocation);
+                actvLocationNames.setText(strEditLocation);
 
                 edcol=csrEditLogEntry.getColumnIndexOrThrow(DBAdapter.COLUMN_DIRECTION);
                 strEditDirection=csrEditLogEntry.getString(edcol);
@@ -628,16 +655,6 @@ public class TravelLogActivity extends ActionBarActivity implements OnItemSelect
                 strEditComments=csrEditLogEntry.getString(eccol);
                 etComments.setText(strEditComments);
 
-
-
-                /*Toast.makeText(TravelLogActivity.this, "Current values are \n" +
-                        blnWorkHome + "\n" +
-                        blnArrDep + "\n" +
-                        blnFT + "\n" +
-                        strCurrentLocation + "\n" +
-                        strCurrentArrTime + "\n" +
-                        strCurrentDepTime + "\n" +
-                        strCurrentComments, Toast.LENGTH_LONG).show();*/
 
 
             }

@@ -72,44 +72,31 @@ tools:context=".TravelLogActivity">
 
     </LinearLayout>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayout2"
-        android:inputType="textCapWords"
-        android:textSize="25sp"
-        android:id="@+id/editTextLocationNames" />
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <AutoCompleteTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout2"
-        android:id="@+id/linearLayout3">
+        android:inputType="textCapWords"
+        android:textSize="25sp"
+        android:id="@+id/autoCompleteTextViewLocationNames"
+        android:hint="Enter Location Name"/>
 
-        <Spinner
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/spnLocationNames"
-            android:spinnerMode="dropdown"
-            android:layout_weight="1" />
-
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingEnd="10dp"
-            android:text="@string/fast_train"
-            android:id="@+id/checkBoxFastTrain"
-            android:checked="false"
-            android:visibility="invisible" />
-
-    </LinearLayout>
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/autoCompleteTextViewLocationNames"
+        android:paddingEnd="10dp"
+        android:text="@string/fast_train"
+        android:id="@+id/checkBoxFastTrain"
+        android:checked="false"
+        android:visibility="invisible" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout3"
+        android:layout_below="@+id/autoCompleteTextViewLocationNames"
+        android:paddingTop="5dp"
         android:id="@+id/linearLayout4" >
 
         <EditText
@@ -149,7 +136,7 @@ tools:context=".TravelLogActivity">
             android:layout_height="wrap_content"
             android:id="@+id/editTextComments"
             android:hint="@string/commenthint"
-            android:inputType="textCapSentences"
+            android:inputType="textMultiLine"
             android:paddingStart="10dp" />
 
     </LinearLayout>
@@ -189,8 +176,10 @@ tools:context=".TravelLogActivity">
         android:id="@+id/btnSaveLogEntry"
         android:drawableStart="@drawable/ic_record"
         android:text="Save Log Entry"
+        android:layout_weight="1" >
 
-        android:layout_weight="1" />
+        <requestFocus />
+    </Button>
 
     <LinearLayout
         android:orientation="horizontal"
